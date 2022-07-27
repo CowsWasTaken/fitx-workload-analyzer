@@ -36,16 +36,20 @@ export class DataService {
   }
 
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   @Interval(300000)
   async handleCron() {
     this.logger.debug('Current data from:' + new Date());
+    const workload = this.storeWorkload()
+    this.logger.debug(workload)
+  }
+
+  async storeWorkload(): Promise<Workload> {
     const data = await this.fetchWebsiteAsString();
     const workload = this.extractWorkload(data)
 
     const timestamp = new Date().valueOf()
-    this.dataHistory.push({timestamp, workload})
-    this.logger.debug(workload)
+    this.dataHistory.push({ timestamp, workload })
+    return workload
   }
+
 }

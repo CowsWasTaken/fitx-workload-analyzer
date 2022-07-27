@@ -1,21 +1,19 @@
 import { Controller, Get } from "@nestjs/common";
-import { DataService } from './data.service';
+import { DataService } from "./data.service";
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: DataService) {}
+  constructor(private readonly dataService: DataService) {}
 
 
 
   @Get()
   async getCurrentData() {
-    const fitx = await this.appService.fetchWebsiteAsString();
-    return this.appService.extractWorkload(fitx)
+    return await this.dataService.storeWorkload()
   }
 
   @Get("history")
   getHistory() {
-    return this.appService.dataHistory
+    return this.dataService.dataHistory
   }
-
 }
