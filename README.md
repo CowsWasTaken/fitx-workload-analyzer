@@ -8,7 +8,7 @@ A service to track the workload of a specific gym and get a data history for it.
 
 #### Get Current Workload
 
-```http
+```http request
   GET /
 ```
 Returns the current workload and saves it in the database
@@ -19,7 +19,7 @@ Returns the current workload and saves it in the database
 
 #### Get History
 
-```http
+```http request
   GET /history
 ```
 Returns the history as a list of `Workload` records
