@@ -4,19 +4,17 @@ import { HttpService } from "@nestjs/axios";
 import { firstValueFrom } from "rxjs";
 import { Workload } from "./model/workload";
 import { Interval } from "@nestjs/schedule";
-import { WorkloadRecord } from "./Record";
+import { PrismaService } from "./prisma/prisma.service";
 
 @Injectable()
 export class DataService {
-
-  dataHistory : WorkloadRecord[] = []
 
   private readonly logger = new Logger(DataService.name);
 
   url = process.env.WORKLOAD_URL
   interval = parseInt(process.env.INTERVAL) || 600000 // 10min
 
-  constructor(private http: HttpService) {
+  constructor(private http: HttpService, private prisma: PrismaService) {
   }
 
   async fetchWebsiteAsString(): Promise<string> {
@@ -46,10 +44,13 @@ export class DataService {
   async storeWorkload(): Promise<Workload> {
     const data = await this.fetchWebsiteAsString();
     const workload = this.extractWorkload(data)
-
-    const timestamp = new Date().valueOf()
-    this.dataHistory.push({ timestamp, workload })
+    const i = await this.prisma.createWorkload(workload.percentage)
+    Logger.log(i)
     return workload
+  }
+
+  async getAll() {
+    return await this.prisma.getWorkloads();
   }
 
 }

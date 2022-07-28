@@ -13,7 +13,7 @@ export class AppController {
   }
 
   @Get("history")
-  getHistory() {
-    return this.dataService.dataHistory
+  async getHistory() {
+    return await this.dataService.getAll();
   }
 }
