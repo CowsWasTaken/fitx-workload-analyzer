@@ -13,11 +13,11 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
     });
   }
 
-  createWorkload(percentage: number) {
-    return this.workloadRecord.create( {
+  async createWorkload(percentage: number, timestamp: number) {
+    return this.workloadRecord.create({
       data: {
         percentage,
-        timestamp: new Date().valueOf()
+        timestamp
       }, select: {
         percentage: true, timestamp: true, id: false
       }

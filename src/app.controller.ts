@@ -1,9 +1,9 @@
 import { Controller, Get } from "@nestjs/common";
-import { DataService } from "./data.service";
+import { FitxService } from "./fitx/fitx.service";
 
 @Controller()
 export class AppController {
-  constructor(private readonly dataService: DataService) {}
+  constructor(private readonly dataService: FitxService) {}
 
   @Get()
   async getCurrentData() {
