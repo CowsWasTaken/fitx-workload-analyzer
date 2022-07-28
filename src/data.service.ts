@@ -2,9 +2,10 @@ import { Injectable, Logger } from "@nestjs/common";
 
 import { HttpService } from "@nestjs/axios";
 import { firstValueFrom } from "rxjs";
-import { Workload } from "./model/workload";
+import { WorkloadFitxDTO } from "./model/workloadFitxDTO";
 import { Interval } from "@nestjs/schedule";
 import { PrismaService } from "./prisma/prisma.service";
+import { WorkloadRecordDTO } from "./model/workloadRecordDTO";
 
 @Injectable()
 export class DataService {
@@ -12,7 +13,6 @@ export class DataService {
   private readonly logger = new Logger(DataService.name);
 
   url = process.env.WORKLOAD_URL
-  interval = parseInt(process.env.INTERVAL) || 600000 // 10min
 
   constructor(private http: HttpService, private prisma: PrismaService) {
   }
@@ -23,7 +23,7 @@ export class DataService {
 
   }
 
-  extractWorkload(data: string): Workload {
+  extractWorkload(data: string): WorkloadFitxDTO {
     const workloadData = data.substring(data.indexOf('workload'))
     let mySubString = workloadData.substring(
       workloadData.indexOf("{"),
@@ -34,22 +34,25 @@ export class DataService {
   }
 
 
-  @Interval(300000)
-  async handleCron() {
+  @Interval(300000) // every 10min in milliseconds
+  async processWorkload() {
+    const workloadFitxDTO = await this.fetchWorkload();
+    const workload = this.storeWorkload(workloadFitxDTO.percentage)
     this.logger.debug('Current data from:' + new Date());
-    const workload = this.storeWorkload()
     this.logger.debug(workload)
-  }
-
-  async storeWorkload(): Promise<Workload> {
-    const data = await this.fetchWebsiteAsString();
-    const workload = this.extractWorkload(data)
-    const i = await this.prisma.createWorkload(workload.percentage)
-    Logger.log(i)
     return workload
   }
 
-  async getAll() {
+  async storeWorkload(percentage: number): Promise<WorkloadRecordDTO> {
+    return await this.prisma.createWorkload(percentage)
+  }
+
+  private async fetchWorkload() {
+    const data = await this.fetchWebsiteAsString();
+    return this.extractWorkload(data);
+  }
+
+  async getAll(): Promise<WorkloadRecordDTO[]> {
     return await this.prisma.getWorkloads();
   }
 

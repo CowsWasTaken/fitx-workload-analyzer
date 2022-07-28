@@ -18,12 +18,17 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
       data: {
         percentage,
         timestamp: new Date().valueOf()
+      }, select: {
+        percentage: true, timestamp: true, id: false
       }
     })
   }
 
   getWorkloads() {
     return this.workloadRecord.findMany({
+      select: {
+        percentage: true, timestamp: true, id: false
+      }
     })
   }
 }

@@ -5,11 +5,9 @@ import { DataService } from "./data.service";
 export class AppController {
   constructor(private readonly dataService: DataService) {}
 
-
-
   @Get()
   async getCurrentData() {
-    return await this.dataService.storeWorkload()
+    return await this.dataService.processWorkload()
   }
 
   @Get("history")
