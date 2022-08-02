@@ -1,20 +1,26 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 
 import { HttpService } from "@nestjs/axios";
 import { firstValueFrom } from "rxjs";
 import { PrismaService } from "../prisma/prisma.service";
 import { WorkloadFitxDTO } from "../model/workloadFitxDTO";
-import { Interval } from "@nestjs/schedule";
+import { SchedulerRegistry } from "@nestjs/schedule";
 import { WorkloadRecordDTO } from "../model/workloadRecordDTO";
 import { TimeService } from "../time/time.service";
 
 @Injectable()
-export class FitxService {
+export class FitxService implements OnModuleInit{
+
+
+  onModuleInit() {
+    const interval = setInterval(() => this.processWorkload(), parseInt(process.env.INTERVAL));
+    this.schedulerRegistry.addInterval('fetch-workload-interval', interval);
+  }
 
   url = process.env.WORKLOAD_URL;
   private readonly logger = new Logger(FitxService.name);
 
-  constructor(private http: HttpService, private prisma: PrismaService, private timeService: TimeService) {
+  constructor(private http: HttpService, private prisma: PrismaService, private timeService: TimeService, private schedulerRegistry: SchedulerRegistry) {
   }
 
   async fetchWebsiteAsString(): Promise<string> {
@@ -24,18 +30,22 @@ export class FitxService {
   }
 
   extractWorkload(data: string): WorkloadFitxDTO {
-    const workloadData = data.substring(data.indexOf("workload"));
-    let mySubString = workloadData.substring(
-      workloadData.indexOf("{"),
-      workloadData.indexOf("}")+1
-    );
-    console.log(mySubString);
-    mySubString = mySubString.replace(/\\/g, "");
-    return JSON.parse(mySubString);
+    let substring = ''
+    try {
+      const workloadData = data.substring(data.indexOf("workload"));
+      substring = workloadData.substring(
+        workloadData.indexOf("{"),
+        workloadData.indexOf("}") + 1
+      );
+      substring = substring.replace(/\\/g, "");
+      return JSON.parse(substring);
+    } catch (e) {
+      Logger.error("Could not parse Workload to correct format")
+      Logger.error(`Substring: ${substring}`)
+    }
   }
 
 
-  @Interval(300000) // every 10min in milliseconds
   async processWorkload() {
     const workloadFitxDTO = await this.fetchWorkload();
     const timestamp = (await this.timeService.getTime()).data.unixtime;
