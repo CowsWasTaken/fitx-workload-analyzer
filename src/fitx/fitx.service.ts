@@ -27,8 +27,9 @@ export class FitxService {
     const workloadData = data.substring(data.indexOf("workload"));
     let mySubString = workloadData.substring(
       workloadData.indexOf("{"),
-      workloadData.lastIndexOf("}")
+      workloadData.indexOf("}")+1
     );
+    console.log(mySubString);
     mySubString = mySubString.replace(/\\/g, "");
     return JSON.parse(mySubString);
   }
