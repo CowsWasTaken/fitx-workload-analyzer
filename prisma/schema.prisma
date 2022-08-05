@@ -10,8 +10,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Studio {
+    id                  Int @id
+    name                String
+    workloadRecords     WorkloadRecord[]
+    interval            Int
+}
+
 model WorkloadRecord {
-    id        Int       @default(autoincrement()) @id
-    timestamp  Int
-    percentage Int
+    id          Int     @default(autoincrement()) @id
+    timestamp   Int
+    percentage  Int
+    studio      Studio  @relation(fields: [studioId], references: [id])
+    studioId    Int
 }

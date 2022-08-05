@@ -1,5 +1,5 @@
-import { INestApplication, Injectable, OnModuleInit } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { INestApplication, Injectable, OnModuleInit } from "@nestjs/common";
+import { PrismaClient, Studio } from "@prisma/client";
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
@@ -8,27 +8,53 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
   }
 
   async enableShutdownHooks(app: INestApplication) {
-    this.$on('beforeExit', async () => {
+    this.$on("beforeExit", async () => {
       await app.close();
     });
   }
 
-  async createWorkload(percentage: number, timestamp: number) {
+  async createWorkload(percentage: number, timestamp: number, studioId: number) {
     return this.workloadRecord.create({
       data: {
-        percentage,
-        timestamp
+        percentage, timestamp, studioId
       }, select: {
-        percentage: true, timestamp: true, id: false
+        percentage: true, timestamp: true
       }
-    })
+    });
   }
 
-  getWorkloads() {
-    return this.workloadRecord.findMany({
-      select: {
-        percentage: true, timestamp: true, id: false
+  getWorkloads(studioId: number) {
+    return this.studio.findUnique({
+      where: {
+        id: studioId
+      }, select: {
+        id: true, name: true, workloadRecords: {
+          select: {
+            percentage: true, timestamp: true
+          }
+        }
       }
-    })
+    });
+  }
+
+  async createOrUpdateStudio(studio: Studio) {
+    const { name, interval, id } = studio;
+    return this.studio.upsert({
+      where: {
+        id
+      }, create: {
+        id, name, interval
+      }, update: {
+        name, interval
+      }
+    });
+  }
+
+  async getStudios() {
+    return this.studio.findMany({
+      select: {
+        interval: true, id: true, name: true
+      }
+    });
   }
 }
