@@ -1,8 +1,11 @@
-import { INestApplication, Injectable, OnModuleInit } from "@nestjs/common";
+import { INestApplication, Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { PrismaClient, Studio } from "@prisma/client";
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
+
+  private readonly logger = new Logger(PrismaService.name);
+
   async onModuleInit() {
     await this.$connect();
   }
@@ -14,6 +17,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
   }
 
   async createWorkload(percentage: number, timestamp: number, studioId: number) {
+    this.logger.debug({percentage, studioId});
     return this.workloadRecord.create({
       data: {
         percentage, timestamp, studioId
@@ -38,6 +42,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
   }
 
   async createOrUpdateStudio(studio: Studio) {
+    this.logger.log(`Created/Updated Studio: ${studio.id}`)
     const { name, interval, id } = studio;
     return this.studio.upsert({
       where: {

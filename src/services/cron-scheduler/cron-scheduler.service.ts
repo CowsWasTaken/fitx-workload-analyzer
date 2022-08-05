@@ -7,11 +7,13 @@ export class CronSchedulerService {
 
   private readonly intervalPrefix = "fetch-workload-";
 
+  private readonly logger = new Logger(CronSchedulerService.name);
+
   constructor(private schedulerRegistry: SchedulerRegistry) {
   }
 
   createJob(studio: Studio, task: (id: number) => Promise<any>) {
-    Logger.log(`Creating Cron Job for Studio: ${studio.id} - ${studio.name}`);
+    this.logger.log(`Creating Cron Job for Studio: ${studio.id} - ${studio.name}`);
     if (this.schedulerRegistry.doesExist("interval", `${this.intervalPrefix}${studio.id}`)) {
       this.schedulerRegistry.deleteInterval(`${this.intervalPrefix}${studio.id}`);
     }

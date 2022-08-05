@@ -28,10 +28,7 @@ export class FitxService implements OnModuleInit {
   async processWorkload(studioId: number) {
     const workloadFitxDTO = await this.fetchWorkload(studioId);
     const timestamp = (await this.timeService.getTime()).data.unixtime;
-    const workload = await this.saveWorkload(studioId, workloadFitxDTO.percentage, timestamp);
-    Logger.debug(`Studio: ${studioId} -> Current data from:${new Date(timestamp * 1000)}`);
-    Logger.debug(workload);
-    return workload;
+    return await this.saveWorkload(studioId, workloadFitxDTO.percentage, timestamp);
   }
 
   async saveWorkload(studioId: number, percentage: number, timestamp: number) {

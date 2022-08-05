@@ -4,6 +4,9 @@ import { WorkloadFitxDTO } from "../../model/workload.dto";
 @Injectable()
 export class DataExtractorService {
 
+  private readonly logger = new Logger(DataExtractorService.name);
+
+
   extractWorkload(data: string): WorkloadFitxDTO {
     let substring = "";
     try {
@@ -15,8 +18,8 @@ export class DataExtractorService {
       substring = substring.replace(/\\/g, "");
       return JSON.parse(substring);
     } catch (e) {
-      Logger.error("Could not parse Workload to correct format");
-      Logger.error(`Substring: ${substring}`);
+      this.logger.error("Could not parse Workload to correct format");
+      this.logger.error(`Substring: ${substring}`);
     }
   }
 
