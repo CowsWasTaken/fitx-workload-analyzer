@@ -9,10 +9,11 @@ import { TimeService } from "./services/time/time.service";
 import { StudioHttpClientService } from "./services/studio-http-client/studio-http-client.service";
 import { DataExtractorService } from "./services/data-extractor/data-extractor.service";
 import { CronSchedulerService } from "./services/cron-scheduler/cron-scheduler.service";
+import { HealthModule } from "./health/health.module";
 
 @Module({
   imports: [HttpModule,
-    ScheduleModule.forRoot(), ConfigModule.forRoot(), PrismaModule],
+    ScheduleModule.forRoot(), ConfigModule.forRoot(), PrismaModule, HealthModule],
   controllers: [AppController],
   providers: [FitxService, TimeService, StudioHttpClientService, DataExtractorService, CronSchedulerService]
 })
