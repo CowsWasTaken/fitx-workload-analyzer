@@ -1,10 +1,11 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Post, UseInterceptors } from "@nestjs/common";
 import { FitxService } from "./fitx/fitx.service";
 import { StudioCreateDto } from "./model/studio-create.dto";
-import { NotFoundInterceptor } from "./filter/not-found.interceptor";
+import { NotFoundInterceptor } from "./interceptors/not-found.interceptor";
+import { PostAuthInterceptor } from "./interceptors/post-auth-interceptor.service";
 
 @Controller("studio")
-@UseInterceptors(NotFoundInterceptor)
+@UseInterceptors(PostAuthInterceptor, NotFoundInterceptor)
 export class AppController {
   constructor(private readonly fitxService: FitxService) {
   }
