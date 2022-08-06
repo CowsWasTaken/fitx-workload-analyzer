@@ -43,7 +43,10 @@ export class FitxService implements OnModuleInit {
 
   async saveStudio(studioId: number, interval: number) {
     const studioName = await this.fetchStudioAlias(studioId);
-    const studio = await this.prisma.createOrUpdateStudio({ id: studioId, interval, name: studioName });
+    if (!studioName) {
+      throw new NotFoundException(`Cannot find Studio with Id:${studioId}`)
+    }
+ {}    const studio = await this.prisma.createOrUpdateStudio({ id: studioId, interval, name: studioName });
     this.createJob(studio);
     return studio;
   }
