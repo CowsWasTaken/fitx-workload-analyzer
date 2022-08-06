@@ -3,6 +3,10 @@
 
 A service to track the workload of a specific gym and get a data history for it.
 
+## Frontend for data visualization
+
+[Frontend](https://fitx-workload-analyzer-ui.herokuapp.com/)
+[Github Page](https://github.com/CowsWasTaken/fitx-workload-analyzer-ui)
 
 ## API Reference
 

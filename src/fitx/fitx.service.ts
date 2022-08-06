@@ -1,60 +1,73 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, Logger, NotFoundException, OnModuleInit } from "@nestjs/common";
 
-import { HttpService } from "@nestjs/axios";
-import { firstValueFrom } from "rxjs";
 import { PrismaService } from "../prisma/prisma.service";
-import { WorkloadFitxDTO } from "../model/workloadFitxDTO";
-import { Interval } from "@nestjs/schedule";
-import { WorkloadRecordDTO } from "../model/workloadRecordDTO";
-import { TimeService } from "../time/time.service";
+import { TimeService } from "../services/time/time.service";
+import { StudioHttpClientService } from "../services/studio-http-client/studio-http-client.service";
+import { DataExtractorService } from "../services/data-extractor/data-extractor.service";
+import { CronSchedulerService } from "../services/cron-scheduler/cron-scheduler.service";
+import { Studio } from "@prisma/client";
+
 
 @Injectable()
-export class FitxService {
+export class FitxService implements OnModuleInit {
 
-  url = process.env.WORKLOAD_URL;
   private readonly logger = new Logger(FitxService.name);
 
-  constructor(private http: HttpService, private prisma: PrismaService, private timeService: TimeService) {
+  constructor(
+    private prisma: PrismaService,
+    private timeService: TimeService,
+    private cronScheduler: CronSchedulerService,
+    private httpClient: StudioHttpClientService,
+    private dataExtractor: DataExtractorService) {
   }
 
-  async fetchWebsiteAsString(): Promise<string> {
-    const fitXData = await firstValueFrom(this.http.get(this.url));
-    return fitXData.data.toString();
-
+  async onModuleInit() {
+    const studios = await this.prisma.getStudios();
+    this.logger.log("Initiating Intervals for Stored Studios");
+    for (const studio of studios) {
+      this.createJob(studio);
+    }
   }
 
-  extractWorkload(data: string): WorkloadFitxDTO {
-    const workloadData = data.substring(data.indexOf("workload"));
-    let mySubString = workloadData.substring(
-      workloadData.indexOf("{"),
-      workloadData.lastIndexOf("}")
-    );
-    mySubString = mySubString.replace(/\\/g, "");
-    return JSON.parse(mySubString);
-  }
-
-
-  @Interval(300000) // every 10min in milliseconds
-  async processWorkload() {
-    const workloadFitxDTO = await this.fetchWorkload();
+  async processWorkload(studioId: number) {
+    await this.validateStudioExisting(studioId);
+    const workloadDto = await this.fetchWorkload(studioId);
     const timestamp = (await this.timeService.getTime()).data.unixtime;
-    const workload = await this.storeWorkload(workloadFitxDTO.percentage, timestamp);
-    this.logger.debug("Current data from:" + new Date(timestamp * 1000));
-    this.logger.debug(workload);
-    return workload;
+    return await this.prisma.createWorkload(workloadDto.percentage, timestamp, studioId);
   }
 
-  async storeWorkload(percentage: number, timestamp: number): Promise<WorkloadRecordDTO> {
-    return await this.prisma.createWorkload(percentage, timestamp);
+  async getAll(studioId: number) {
+    await this.validateStudioExisting(studioId);
+    return await this.prisma.getWorkloads(studioId);
   }
 
-  async getAll(): Promise<WorkloadRecordDTO[]> {
-    return await this.prisma.getWorkloads();
+  async saveStudio(studioId: number, interval: number) {
+    const studioName = await this.fetchStudioAlias(studioId);
+    const studio = await this.prisma.createOrUpdateStudio({ id: studioId, interval, name: studioName });
+    this.createJob(studio);
+    return studio;
   }
 
-  private async fetchWorkload() {
-    const data = await this.fetchWebsiteAsString();
-    return this.extractWorkload(data);
+  private createJob(studio: Studio) {
+    this.cronScheduler.createJob(studio, async () => {
+      return this.processWorkload(studio.id);
+    });
+  }
+
+  private async fetchStudioAlias(studioId: number) {
+    const data = await this.httpClient.getData(studioId);
+    return this.dataExtractor.extractStudioAlias(data);
+  }
+
+  private async fetchWorkload(studioId: number) {
+    const data = await this.httpClient.getData(studioId);
+    return this.dataExtractor.extractWorkload(data);
+  }
+
+  private async validateStudioExisting(studioId: number) {
+    if (!await this.prisma.isStudioExisting(studioId)) {
+      throw new NotFoundException("Studio not found", "Not found");
+    }
   }
 
 }
