@@ -17,7 +17,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
   }
 
   async createWorkload(percentage: number, timestamp: number, studioId: number) {
-    this.logger.debug({percentage, studioId});
+    this.logger.debug({ percentage, studioId });
     return this.workloadRecord.create({
       data: {
         percentage, timestamp, studioId
@@ -28,7 +28,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
   }
 
   getWorkloads(studioId: number) {
-    return this.studio.findUnique({
+    return this.studio.findUniqueOrThrow({
       where: {
         id: studioId
       }, select: {
@@ -42,7 +42,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
   }
 
   async createOrUpdateStudio(studio: Studio) {
-    this.logger.log(`Created/Updated Studio: ${studio.id}`)
+    this.logger.log(`Created/Updated Studio: ${studio.id}`);
     const { name, interval, id } = studio;
     return this.studio.upsert({
       where: {
@@ -61,5 +61,14 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
         interval: true, id: true, name: true
       }
     });
+  }
+
+  async isStudioExisting(id: number) {
+    const num = this.studio.count({
+      where: {
+        id
+      }
+    });
+    return await num > 0;
   }
 }

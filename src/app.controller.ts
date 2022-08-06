@@ -1,23 +1,25 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, ParseIntPipe, Post, UseInterceptors } from "@nestjs/common";
 import { FitxService } from "./fitx/fitx.service";
-import { StudioCreateDto } from "./model/studioCreate.dto";
+import { StudioCreateDto } from "./model/studio-create.dto";
+import { NotFoundInterceptor } from "./filter/not-found.interceptor";
 
-@Controller()
+@Controller("studio")
+@UseInterceptors(NotFoundInterceptor)
 export class AppController {
   constructor(private readonly fitxService: FitxService) {
   }
 
-  @Post("studio")
+  @Post()
   async saveStudio(@Body() studioCreate: StudioCreateDto) {
     return await this.fitxService.saveStudio(studioCreate.id, studioCreate.interval);
   }
 
-  @Get("studio/:id")
-  async getCurrentData(@Param("id", ParseIntPipe) id: number) {
+  @Get("/:id")
+  async getCurrentWorkload(@Param("id", ParseIntPipe) id: number) {
     return await this.fitxService.processWorkload(id);
   }
 
-  @Get("studio/:id/history")
+  @Get("/:id/history")
   async getHistory(@Param("id", ParseIntPipe) id: number) {
     return await this.fitxService.getAll(id);
   }

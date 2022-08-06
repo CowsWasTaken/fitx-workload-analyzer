@@ -12,9 +12,9 @@ export class StudioHttpClientService {
   constructor(private http: HttpService, private configService: ConfigService<EnvironmentVariables>) {
   }
 
-  async fetchWebsiteAsString(id: number): Promise<string> {
-    const fitXData = await firstValueFrom(this.http.get(this.getUrl(id)));
-    return fitXData.data.toString();
+  async getData(id: number): Promise<string> {
+    const apiData = await firstValueFrom(this.http.get(this.getUrl(id)));
+    return apiData.data.toString();
   }
 
   getUrl(id: number) {
