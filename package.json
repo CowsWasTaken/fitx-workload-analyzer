@@ -1,10 +1,10 @@
 {
   "name": "fitx-analyzer",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "Service to track Workload in any FitX Gym",
+  "author": "Felix Jahn",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
