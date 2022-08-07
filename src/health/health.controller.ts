@@ -20,7 +20,7 @@ export class HealthController {
   check() {
     return this.health.check([
       () => this.http.pingCheck('fitx availability check', 'https://www.fitx.de/fitnessstudios'),
-      () => this.db.pingCheck('healthcheckdemo'),
+      () => this.db.pingCheck('db_status'),
       () => this.memory.checkHeap('memory_heap', 300*1024*1024),
       () => this.memory.checkRSS('memory_rss', 300*1024*1024),
     ]);
