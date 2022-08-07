@@ -1,5 +1,4 @@
-export interface WorkloadDto {
-  term: string,
-  percentage: number,
-  source: string
+export class WorkloadDto {
+  percentage: number;
+  timestamp: number;
 }

@@ -1,4 +1,4 @@
-export interface StudioCreateDto {
-  interval: number,
+export class StudioCreateDto {
+  interval: number;
   id: number
 }
