@@ -15,6 +15,11 @@ export class AppController {
     return await this.fitxService.saveStudio(studioCreate.id, studioCreate.interval);
   }
 
+  @Get()
+  async getStudios() {
+    return await this.fitxService.getStudios();
+  }
+
   @Get("/:id")
   async getCurrentWorkload(@Param("id", ParseIntPipe) id: number) {
     return await this.fitxService.processWorkload(id);
