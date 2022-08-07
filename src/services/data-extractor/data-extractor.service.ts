@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { WorkloadDto } from "../../model/workload.dto";
+import { FitxWorkloadDto } from "../../model/fitx-workload.dto";
 
 @Injectable()
 export class DataExtractorService {
@@ -7,7 +7,7 @@ export class DataExtractorService {
   private readonly logger = new Logger(DataExtractorService.name);
 
 
-  extractWorkload(data: string): WorkloadDto {
+  extractWorkload(data: string): FitxWorkloadDto {
     let substring = "";
     try {
       const workloadData = data.substring(data.indexOf("workload"));

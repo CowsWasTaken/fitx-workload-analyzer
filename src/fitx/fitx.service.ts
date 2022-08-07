@@ -22,11 +22,15 @@ export class FitxService implements OnModuleInit {
   }
 
   async onModuleInit() {
-    const studios = await this.prisma.getStudios();
+    const studios = await this.getStudios()
     this.logger.log("Initiating Intervals for Stored Studios");
     for (const studio of studios) {
       this.createJob(studio);
     }
+  }
+
+  async getStudios() {
+    return this.prisma.getStudios();
   }
 
   async processWorkload(studioId: number) {
