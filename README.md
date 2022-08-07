@@ -5,46 +5,20 @@ A service to track the workload of a specific gym and get a data history for it.
 
 ## Frontend for data visualization
 
-[Frontend](https://fitx-workload-analyzer-ui.herokuapp.com/)
-[Github Page](https://github.com/CowsWasTaken/fitx-workload-analyzer-ui)
+[![Angular](https://img.shields.io/badge/angular-%23DD0031.svg?style=for-the-badge&logo=angular&logoColor=white)](https://fitx-workload-analyzer-ui.herokuapp.com/)
+[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CowsWasTaken/fitx-workload-analyzer-ui)
 
 ## API Reference
 
-#### Get Current Workload
-
-```http request
-  GET /
-```
-Returns the current workload and saves it in the database
-
-```json
-    {"percentage":42,"timestamp":1659032469}
-```
-
-#### Get History
-
-```http request
-  GET /history
-```
-Returns the history as a list of `Workload` records
-
-```json
-[
-    {"percentage":42,"timestamp":1659032146},
-    {"percentage":42,"timestamp":1659032414},
-    {"percentage":42,"timestamp":1659032428},
-    {"percentage":42,"timestamp":1659032468},
-    {"percentage":42,"timestamp":1659032469}
-]
-```
-
+[![Swagger](https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white)](https://fitx-workload-analyzer.herokuapp.com/api)
 ## Environment Variables
 
 To run this project, you will need to add the following environment variables to your .env file
 
 ```
 
-WORKLOAD_URL=https://www.fitx.de/fitnessstudio/76/workload
+BASE_URL=https://www.fitx.de/fitnessstudio/{id}/workload
+
 PORT=8080
 
 # For local database with docker compose
@@ -56,6 +30,9 @@ DATABASE_PORT=5432
 DATABASE_URL="postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@localhost:${DATABASE_PORT}/${DATABASE_NAME}?schema=public"
 
 TIME_URL=https://worldtimeapi.org/api/timezone/Europe/Berlin
+
+AUTH_TOKEN=
+
 
 ```
 ## Build the Service
